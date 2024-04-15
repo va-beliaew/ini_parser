@@ -1,8 +1,9 @@
-/*#include <iostream>
+#include <iostream>
 #include <map>
 #include <fstream>
 #include <string>
 #include <iomanip>
+
 
 
 class parser_ini {
@@ -14,16 +15,15 @@ class parser_ini {
 	int num_of_lines = 1;
 
 	void read() {
-		try {
 			std::string line;
 			std::map<std::string, std::string> param;
 			std::string section;
 			bool section_write = false;
 			bool section_find = false;
 			bool equal = false;
-			
+
 			while (!file.eof()) {
-				
+
 				section_find = false;
 				equal = false;
 				getline(file, line);
@@ -53,20 +53,12 @@ class parser_ini {
 					}
 				}
 				if (equal) {
-				//	data.insert({ section, param });
+					//	data.insert({ section, param });
 					ins(section, param);
 				}
 				++num_of_lines;
 			}
-		}
-		catch (const std::range_error& er) {
-			std::cerr << er.what() << " line: " << num_of_lines; 
-			exit(1);
-		}
-		catch (std::string estr) {
-			std::cerr << estr << " line: " << num_of_lines;
-			exit(1);
-		}
+		
 	}
 
 	void ins(std::string str, std::map<std::string, std::string> p) {
@@ -115,8 +107,7 @@ class parser_ini {
 			}
 			else {
 				throw
-				std::range_error("Uncorrect name of section!");
-				exit(1);
+					std::range_error(("Uncorrect name of section! Line: " + std::to_string(num_of_lines)));
 			}
 		}
 		flag = true;
@@ -155,9 +146,9 @@ class parser_ini {
 								back = i + 1;
 								break;
 							}
-							else if(!equal && *i != ' ') {
+							else if (!equal && *i != ' ') {
 								throw
-									std::range_error("Uncorrect wrote parametr!");
+									std::range_error("Uncorrect wrote parametr! Line: " + std::to_string(num_of_lines));
 							}
 						}
 						break;
@@ -170,7 +161,7 @@ class parser_ini {
 					}
 					else {
 						throw
-							std::range_error("Equal sign not find!");
+							std::range_error("Equal sign not find! Line: " + std::to_string(num_of_lines));
 					}
 				}
 			}
@@ -201,9 +192,9 @@ class parser_ini {
 				back = r;
 				break;
 			}
-			else if(wr_val && *r != ';' && *r != ' ') {
+			else if (wr_val && *r != ';' && *r != ' ') {
 				throw
-					std::string("Parameter has two or more values!");
+					std::range_error ("Parameter has two or more values! Line: " + std::to_string(num_of_lines));
 			}
 		}
 		sm[parametr] = value;
@@ -250,7 +241,7 @@ class parser_ini {
 			if (i_find->second.find(request.second) == i_find->second.end()) {
 				all_parameter(i_find);
 				throw std::exception(" ");
-			
+
 			}
 			else {
 				auto i_value = i_find->second.find(request.second);
@@ -355,8 +346,8 @@ class parser_ini {
 
 
 public:
+	
 	parser_ini(std::string adress) {
-		try {
 			file.open(adress);
 			if (file.is_open()) {
 				read();
@@ -366,11 +357,6 @@ public:
 				throw
 					std::exception("can't open this file!");
 			}
-		}
-		catch (const std::exception& er) {
-			std::cerr << er.what();
-			exit(1);
-		}
 	}
 
 	~parser_ini() {
@@ -379,7 +365,6 @@ public:
 
 	template <typename T>
 	T get_value(std::string request_) {
-		try {
 			request = to_pair(request_);
 			std::string result = find();
 			int type = numeric(result);
@@ -441,28 +426,29 @@ public:
 					return res_c;
 				}
 			}
-		}
-		catch (const std::exception& er) {
-			std::cerr << er.what();
-			exit(1);
-		}
-		catch (const std::out_of_range& er) {
-			std::cerr << er.what();
-		}
-		catch (const std::invalid_argument& er) {
-			std::cerr << er.what();
-			exit(1);
-		}
-}
-	
+		
+		
+	}
+
 };
 
+ 
 
 int main() {
 	setlocale(LC_ALL, "rus");
-	parser_ini parser { "data.ini" };
-	auto value = parser.get_value<double> ("Section1.var1");
-	std::cout << "value = " << std::fixed << std::setprecision(2) << value;
-
+	try{
+	parser_ini parser{ "data.ini" };
+		auto value = parser.get_value<double>("Section1.var1");
+		std::cout << "value = " << std::fixed << std::setprecision(2) << value;
+	}
+	catch (const std::range_error& er) {
+		std::cerr << er.what();
+	}
+	catch (const std::exception& er) {
+		std::cerr << er.what();
+	}
+	catch (const std::invalid_argument& er) {
+		std::cerr << er.what();
+	}
 	return 0;
-}*/
+}
